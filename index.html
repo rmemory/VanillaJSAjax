@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Vanilla JS Type Ahead 👀</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+
+		<form class="search-form">
+			<input type="text" class="search" placeholder="City or State">
+
+			<!-- Display elements in an input form -->
+			<ul class="suggestions">
+				<li>Filter for a city</li>
+				<li>or a state</li>
+			</ul>
+		</form>
+
+		<script>
+			/* This data is a list of cities, in JSON format. It contains 
+			   city names, lat, long, population, rank, state */ 
+			const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+			const cities = [];
+
+			/* fetch is a new browser API to perform an HTTP request. Returns a promise.
+			   The blob is raw data that must be converted into something, in this
+			   case json */
+			fetch(endpoint)
+				.then(blob =>blob.json())
+				.then(arrayData => cities.push(...arrayData));
+				// .then(arrayData => cities.push(arrayData)); /* Creates a nested array */
+				// .then(arrayData => cities = arrayData); /* Only doable if cities is declared as let not as const */
+
+			/* 
+			 * findMatches
+			 * 
+			 * Takes a string (wordTomatch) and the array of data as inputs, and returns an
+			 * array that contains city or state names in the cities data that match that word.
+			 */
+			function findMatches(wordToMatch, cities) {
+				return cities.filter(place => {
+					// Here we figure out if the city or state matches what was searched
+					const regex = new RegExp(wordToMatch, 'gi'); // global and case insenitive
+					return place.city.match(regex) || place.state.match(regex);
+				});
+			}
+
+			// https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+			const numberWithCommas = (x) => {
+				return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			}
+
+			/* 
+			 * displayMatches
+			 * 
+			 * This is tied to the search input form, meaning this.value contains the value from 
+			 * the input form. It takes that value, calls findMatches, and uses a map operation
+			 * to build up the li HTML elements containing the matches. 
+			 */
+			function displayMatches() {
+				const matchArray = findMatches(this.value, cities);
+
+				/* Create the html based on the value from the input */
+				const html = matchArray.map(place => {
+					const regex = new RegExp(this.value, 'gi');
+					const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+					const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+					return `
+						<li>
+							<span class="name">${cityName}, ${stateName}</span>
+							<span class="population">Pop: ${numberWithCommas(place.population)}</span>
+						</li>
+						`;
+				}).join(''); // Combines the entire array into a single string. Without it, you get commas in the html
+
+				/* Replace the HTML inside of the unordered list ul */
+				suggestions.innerHTML = html;
+			}
+
+			const searchInput = document.querySelector('.search');
+			const suggestions = document.querySelector('.suggestions');
+
+			/* Respond to both click outside of the search box and also key ups as the user
+			   is typing */
+			searchInput.addEventListener('change', displayMatches);
+			searchInput.addEventListener('keyup', displayMatches);
+
+		</script>
+	</body>
+</html>
