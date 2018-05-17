@@ -14,34 +14,48 @@
 			<ul class="suggestions">
 				<li>Filter for a city</li>
 				<li>or a state</li>
+
+				<!-- additional li's will be dynamically added as per the search -->
 			</ul>
 		</form>
 
 		<script>
-			/* This data is a list of cities, in JSON format. It contains 
+			/* This data is a list of places, in JSON format. It contains 
 			   city names, lat, long, population, rank, state */ 
 			const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-			const cities = [];
+			const places = []; // const here allows the data of the array to be changed, 
+							   // but not the array object itself.
 
 			/* fetch is a new browser API to perform an HTTP request. Returns a promise.
 			   The blob is raw data that must be converted into something, in this
 			   case json */
 			fetch(endpoint)
 				.then(blob =>blob.json())
-				.then(arrayData => cities.push(...arrayData));
-				// .then(arrayData => cities.push(arrayData)); /* Creates a nested array */
-				// .then(arrayData => cities = arrayData); /* Only doable if cities is declared as let not as const */
+				.then(arrayData => places.push(...arrayData));
+				// .then(arrayData => places.push(arrayData)); /* Creates a nested array, need to use the spread operator */
+				// .then(arrayData => places = arrayData); /* Only doable if places is declared as let not as const */
 
 			/* 
 			 * findMatches
 			 * 
 			 * Takes a string (wordTomatch) and the array of data as inputs, and returns an
-			 * array that contains city or state names in the cities data that match that word.
+			 * array that contains city or state names in the places data that match that word.
 			 */
-			function findMatches(wordToMatch, cities) {
-				return cities.filter(place => {
-					// Here we figure out if the city or state matches what was searched
+			function findMatches(wordToMatch, places) {
+				// figure out if the city or state matches what was searched
+				return places.filter(place => {
+					/* The following code will not work, because includes doesn't allow case 
+					   insensitive searches
+					
+					if ((place.city.includes(wordToMatch) === true) || 
+						(place.state.includes(wordToMatch) === true))
+						return true;
+					else 
+						return false;
+					*/
+
+					/* So we have to use a regex */
 					const regex = new RegExp(wordToMatch, 'gi'); // global and case insenitive
 					return place.city.match(regex) || place.state.match(regex);
 				});
@@ -60,10 +74,10 @@
 			 * to build up the li HTML elements containing the matches. 
 			 */
 			function displayMatches() {
-				const matchArray = findMatches(this.value, cities);
+				const matchedPlaces = findMatches(this.value, places);
 
 				/* Create the html based on the value from the input */
-				const html = matchArray.map(place => {
+				const html = matchedPlaces.map(place => {
 					const regex = new RegExp(this.value, 'gi');
 					const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
 					const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
@@ -75,7 +89,9 @@
 						`;
 				}).join(''); // Combines the entire array into a single string. Without it, you get commas in the html
 
-				/* Replace the HTML inside of the unordered list ul */
+				/* Append the generated HTML inside of the unordered list ul 
+				   We'd have to use replace if we wished to replace it entirely
+				   https://stackoverflow.com/questions/15618470/javascript-replace-html-using-innerhtml */
 				suggestions.innerHTML = html;
 			}
 
@@ -83,7 +99,8 @@
 			const suggestions = document.querySelector('.suggestions');
 
 			/* Respond to both click outside of the search box and also key ups as the user
-			   is typing */
+			   is typing. The change only fires when the user clicks outside, where as 
+			   keyup occurs with every key stroke */
 			searchInput.addEventListener('change', displayMatches);
 			searchInput.addEventListener('keyup', displayMatches);
 

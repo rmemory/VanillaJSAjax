@@ -1,106 +1,125 @@
-	html {
-		box-sizing: border-box;
-		background:#ffc600;
-		font-family:'helvetica neue';
-		font-size: 20px;
-		font-weight: 200;
-	}
+html {
+	box-sizing: border-box;
+	background:#ffc600;
+	font-family:'helvetica neue';
+	font-size: 20px;
+	font-weight: 200;
+}
 
-	*, *:before, *:after {
-		box-sizing: inherit;
-	}
+*, *:before, *:after {
+	box-sizing: inherit;
+}
 
-	input {
-		width: 100%;
-		padding:20px;
-	}
+/* This class is only applied to the form element */
+.search-form {
+	max-width:400px;
+	margin:50px auto; /* auto causes the right and left margins to increase
+						 to the point it centers the element along the y-axis */
+}
 
-	.search-form {
-		max-width:400px;
-		margin:50px auto;
-	}
+input {
+	/* Because input is a child of the .search-form, and because border-box is 
+	   specified, the width of 100% here means the input form will be 100% as 
+	   wide as the .search-form */
+	width: 100%;
+	padding:20px;
+}
 
-	input.search {
-		margin: 0;
-		text-align: center;
-		outline:0;
-		border: 10px solid #F7F7F7;
-		width: 120%;
-		
-		/* Position relative to -10% of the left of the parent, and down 10px 
-			 from the top */
-		left: -10%;
-		top: 10px;
-		position: relative;
+/* Because the .search class is statically and always applied to the input 
+   element, but these properties are separated, because we apply different
+   properties to the list which is also contained with the input element. */
+input.search {
+	margin: 0;
+	text-align: center;
 
-		z-index: 2;
+	/* Outline is drawn outside of the border */
+	outline:0px;
+	border: 10px solid #F7F7F7;
+	width: 120%;
+	
+	/* Position relative to -10% of the left of the parent, and down 10px 
+	   from the top */
+	left: -10%;
+	top: 10px;
+	position: relative;
 
-		/* Slightly rounded corners */
-		border-radius: 5px;
-		
-		font-size: 40px;
-		box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
-	}
+	z-index: 2;
 
-	.suggestions {
-		margin: 0;
-		padding: 0;
-		position: relative;
-		/*perspective:20px;*/
-	}
+	/* Slightly rounded corners */
+	border-radius: 5px;
+	
+	font-size: 40px;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.12), inset 0 0 2px rgba(0, 0, 0, 0.19);
+}
 
-  /*
-   * Styles for all li's that are descendents of the suggestions class
-   */
-	.suggestions li {
-    background:white;
-    
-    /* Get rid of the bullets */
-    list-style: none;
-    
-		border-bottom: 1px solid #D8D8D8;
-    
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
-		margin:0;
-    padding:20px;
-    
-    text-transform: capitalize;
-    
-    transition:background 0.2s;
-    
-    display:flex;
-		justify-content:space-between;
-	}
+/* The suggestions class is applied to the ul element, which is a child of 
+   the input element */
+.suggestions {
+	margin: 0;
+	padding: 0;
+	position: relative;
+	/*perspective:20px;*/
+}
 
-  /* 
-   * Static styles for even li's
-   */
-	.suggestions li:nth-child(even) {
-		/*
-		 * A static transform
-		 *
-		 * Positive perspective brings the element closer to the user (in the 3d world).
-		 * rotateX rotates it along the x axis
-		 * Postive translateY drops it in the y direction
-		 */
-		transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
-		/* A very slight shadow which gets slightly darker at the bottom */
-		background: linear-gradient(to bottom,#ffffff 0%,#EFEFEF 100%);
-	}
+/*
+ * Styles for all li's that are descendents of the suggestions class
+ */
+.suggestions li {
+	background:white;
 
-  /* 
-   * Static styles for odd li's
-   */
-	.suggestions li:nth-child(odd) {
-		transform: perspective(100px) rotateX(-3deg) translateY(3px);
-		background: linear-gradient(to top,#ffffff 0%,#EFEFEF 100%);
-	}
+	/* Get rid of the bullets */
+	list-style: none;
 
-	span.population {
-		font-size: 15px;
-	}
+	border-bottom: 1px solid #D8D8D8;
 
-	/* highlight class, provides a nice yellow background for typed text in the li's */
-	.hl {
-		background:#ffc600;
-	}
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
+	margin:0;
+	padding:20px;
+
+	text-transform: capitalize;
+
+	/* Not sure why there is a transition on the background */
+	transition:
+		background 0.2s;
+
+	/* There are no flex children of the li's, thus there are no flex children
+	   and that means this code isn't used, and is thus commented out
+	display:flex;
+	justify-content:space-between; */
+}
+	
+/* 
+ * Static styles for even li's
+ */
+.suggestions li:nth-child(even) {
+	/*
+	 * A static transform
+	 *
+	 * Positive perspective brings the element closer to the user (in the 3d world),
+	 * without the perspective, the rotateX doesn't happen
+	 *
+	 * rotateX rotates it along the x axis
+	 * Postive translateY drops it in the y direction
+	 */
+	transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
+	
+	/* A very slight shadow which gets slightly darker at the bottom */
+	background: linear-gradient(to bottom,#ffffff 0%,#EFEFEF 100%);
+}
+
+/* 
+ * Static styles for odd li's
+ */
+.suggestions li:nth-child(odd) {
+	transform: perspective(100px) rotateX(-3deg) translateY(3px);
+	background: linear-gradient(to top,#ffffff 0%,#EFEFEF 100%);
+}
+
+span.population {
+	font-size: 15px;
+}
+
+/* highlight class, provides a nice yellow background for typed text in the li's */
+.hl {
+	background:#ffc600;
+}
